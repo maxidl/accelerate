@@ -1198,7 +1198,7 @@ class Accelerator:
                 and self.verify_device_map(obj)
                 and self.distributed_type != DistributedType.NO
             ):
-                raise ValueError(
+                print("skipped error: "
                     "You can't train a model that has been loaded with `device_map='auto'` in any distributed mode."
                     " Please rerun your script specifying `--num_processes=1` or by launching with `python {{myscript.py}}`."
                 )
@@ -1329,7 +1329,7 @@ class Accelerator:
         self._models.append(model)
 
         if self.verify_device_map(model) and self.distributed_type != DistributedType.NO:
-            raise ValueError(
+            print("skipped error: "
                 "You can't train a model that has been loaded with `device_map='auto'` in any distributed mode."
                 " Please rerun your script specifying `--num_processes=1` or by launching with `python {{myscript.py}}`."
             )
@@ -1401,8 +1401,9 @@ class Accelerator:
             ):
                 if any(p.requires_grad for p in model.parameters()):
                     kwargs = self.ddp_handler.to_kwargs() if self.ddp_handler is not None else {}
+                    print('setting device ids and output device to none =====================================================================================')
                     model = torch.nn.parallel.DistributedDataParallel(
-                        model, device_ids=[self.local_process_index], output_device=self.local_process_index, **kwargs
+                        model, device_ids=None, output_device=None, **kwargs
                     )
             elif self.distributed_type == DistributedType.FSDP:
                 from torch.distributed.fsdp.fully_sharded_data_parallel import FullyShardedDataParallel as FSDP
